@@ -4,17 +4,15 @@ import (
 	"fmt"
 )
 
-type AppEnv int
-
 const (
-	PRODUCTION AppEnv = iota + 1
+	PRODUCTION int = iota + 1
 	STAGING
 	TESTING
 	DEVELOPMENT
 )
 
 var (
-	envStrMapping = map[AppEnv]string {
+	envStrMapping = map[int]string {
 		PRODUCTION : "production",
 		STAGING : "staging",
 		TESTING : "testing",
@@ -24,7 +22,7 @@ var (
 
 type App struct {
 	isInit bool
-	env AppEnv
+	env int
 	envString string
 	configFile string
 	config string
@@ -48,7 +46,7 @@ func (this *App) String() string {
 }
 
 //get App.env
-func (this *App) Env() AppEnv {
+func (this *App) Env() int {
 	return this.env
 }
 
@@ -57,7 +55,7 @@ func (this *App) EnvString() string {
 	return this.envString
 }
 
-func strToEnv(envString string) AppEnv {
+func strToEnv(envString string) int {
 	env := PRODUCTION
 	for k, v := range envStrMapping {
 		if(v == envString){
@@ -68,6 +66,7 @@ func strToEnv(envString string) AppEnv {
 	return env
 }
 
+//App initialize
 func (this *App) Init() {
 	this.isInit = true
 	println("app is init... %s", this)
