@@ -1,16 +1,9 @@
-//Package error provide a chained error to track the root cause of an error
-package error
+package maru
 
 import(
 	"fmt"
 	"runtime"
 	"strings"
-)
-
-var(
-	println = fmt.Println
-	//Setting with go build -ldflags "-X github.com/yeejlan/maru/error.BuildDir=xxx"
-	BuildDir string
 )
 
 //ErrorChain struct to track the root error
@@ -24,7 +17,7 @@ func init() {
 }
 
 //Create a new error chain
-func New(message string, cause ...string) *ErrorChain {
+func NewError(message string, cause ...string) *ErrorChain {
 
 	chained := make([]string, 0)
 	detail := getLocation(2)
@@ -37,7 +30,7 @@ func New(message string, cause ...string) *ErrorChain {
 }
 
 //Create a new error chain from existing error
-func From(message string, err error) *ErrorChain {
+func FromError(message string, err error) *ErrorChain {
 
 	chained := make([]string, 0)
 	detail := getLocation(2)
