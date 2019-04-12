@@ -21,7 +21,7 @@ func NewError(message string, cause ...string) *ErrorChain {
 
 	chained := make([]string, 0)
 	detail := getLocation(2)
-	chained = append(chained, fmt.Sprintf("%s:%s", message, detail))
+	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
 	chained = append(chained, cause...)
 	return &ErrorChain {
 		Message: message,
@@ -34,7 +34,7 @@ func FromError(message string, err error) *ErrorChain {
 
 	chained := make([]string, 0)
 	detail := getLocation(2)
-	chained = append(chained, fmt.Sprintf("%s:%s", message, detail))
+	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
 	chainedErr, ok := err.(*ErrorChain)
 	if ok {
 		chained = append(chained, chainedErr.Cause...)
@@ -49,7 +49,7 @@ func FromError(message string, err error) *ErrorChain {
 
 //implement error interface
 func (this *ErrorChain) Error() string {
-	err := strings.Join(this.Cause, ",")
+	err := strings.Join(this.Cause, ", ")
 	return err
 }
 
@@ -67,6 +67,6 @@ func getLocationDetail(callDepth int) (file string, line int, function string) {
 //get error location as string
 func getLocation(callDepth int) string {
 	file, line, function := getLocationDetail(callDepth)
-	return fmt.Sprintf("%s(%s:%d)", function, file, line)
+	return fmt.Sprintf("%s:%s:%d", function, file, line)
 }
 
