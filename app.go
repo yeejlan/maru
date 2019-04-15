@@ -74,7 +74,7 @@ func (this *App) Init() {
 		log.Fatal(`Please set "log.path" in config file`)
 	}
 	//todo: initialize logger
-	log.Printf("%s starting with env=%s, config=%s", this, this.envString, this.config.ConfigFile)
+	log.Printf("%s starting with %s", this, this.config.ConfigFile)
 }
 
 //get app config
