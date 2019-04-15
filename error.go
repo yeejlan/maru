@@ -19,7 +19,7 @@ func init() {
 //Create a new error chain
 func NewError(message string, cause ...string) *ErrorChain {
 
-	chained := make([]string, 0)
+	chained := make([]string, 0, 3)
 	detail := getLocation(2)
 	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
 	chained = append(chained, cause...)
@@ -32,7 +32,7 @@ func NewError(message string, cause ...string) *ErrorChain {
 //Create a new error chain from existing error
 func FromError(message string, err error) *ErrorChain {
 
-	chained := make([]string, 0)
+	chained := make([]string, 0, 5)
 	detail := getLocation(2)
 	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
 	chainedErr, ok := err.(*ErrorChain)

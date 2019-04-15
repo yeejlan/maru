@@ -29,6 +29,7 @@ type App struct {
 	name string
 }
 
+//create new App
 func NewApp(envString string, appName string) *App {
 	env := strToEnv(envString)
 	envStr := envStrMapping[env]
