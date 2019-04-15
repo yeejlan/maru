@@ -2,6 +2,7 @@ package maru
 
 import (
 	"fmt"
+	"log"
 )
 
 const (
@@ -24,9 +25,8 @@ type App struct {
 	isInit bool
 	env int
 	envString string
-	configFile string
-	config string
-	name string
+	config *Config
+	appName string
 }
 
 //create new App
@@ -37,23 +37,13 @@ func NewApp(envString string, appName string) *App {
 		isInit: false,
 		env: env,
 		envString: envStr,
-		name: appName,
+		appName: appName,
 	}
 }
 
 //implement string interface
 func (this *App) String() string {
-	return fmt.Sprintf("App[name=%s, env=%s]", this.name, this.envString)
-}
-
-//get App.env
-func (this *App) Env() int {
-	return this.env
-}
-
-//get App.envString
-func (this *App) EnvString() string {
-	return this.envString
+	return fmt.Sprintf("App[name=%s, env=%s]", this.appName, this.envString)
 }
 
 func strToEnv(envString string) int {
@@ -70,5 +60,49 @@ func strToEnv(envString string) int {
 //App initialize
 func (this *App) Init() {
 	this.isInit = true
-	println("app is init... %s", this)
+	
+	//set log flag
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+
+	//load config file
+	configFile := fmt.Sprintf("config/%s/%s.ini", this.envString, this.appName)
+	config := NewConfig(configFile)
+	this.config = config
+
+	//check log path
+	if config.Get("log.path") == "" {
+		log.Fatal(`Please set "log.path" in config file`)
+	}
+	//todo: initialize logger
+	log.Printf("%s starting with env=%s, config=%s", this, this.envString, this.config.ConfigFile)
+}
+
+//get app config
+func (this *App) Config() *Config {
+	this.checkInit()
+	return this.config
+}
+
+//get app env
+func (this *App) Env() int {
+	this.checkInit()
+	return this.env
+}
+
+//get app env string
+func (this *App) EnvString() string {
+	this.checkInit()
+	return this.envString
+}
+
+//get app name
+func (this *App) AppName() string {
+	this.checkInit()
+	return this.appName
+}
+
+func (this *App) checkInit() {
+	if(!this.isInit) {
+		log.Fatal(`Please call "App.Init()" first`)
+	}
 }

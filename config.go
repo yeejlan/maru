@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	FilePath string
+	ConfigFile string
 	data map[string]string
 }
 
@@ -42,7 +42,7 @@ func NewConfig(filePath string) *Config {
 	}
 
 	return &Config {
-		FilePath: filePath,
+		ConfigFile: filePath,
 		data: data,
 	}
 }
@@ -57,6 +57,7 @@ func (this *Config) GetMap() map[string]string {
 	return this.data
 }
 
+//get string value
 func (this *Config) Get(pathStr string, defaultVal ...string) string {
 	if val, ok := this.data[pathStr]; ok {
 		return val
@@ -67,10 +68,12 @@ func (this *Config) Get(pathStr string, defaultVal ...string) string {
 	return ""
 }
 
+//get string value, alias for "Get"
 func (this *Config) GetString(pathStr string, defaultVal ...string) string {
 	return this.Get(pathStr, defaultVal...)
 }
 
+//get int value
 func (this *Config) GetInt(pathStr string, defaultVal ...int) int {
 	if val, ok := this.data[pathStr]; ok {
 		if intval, err := strconv.Atoi(val); err == nil {
@@ -84,6 +87,7 @@ func (this *Config) GetInt(pathStr string, defaultVal ...int) int {
 	return 0
 }
 
+//get bool value
 func (this *Config) GetBool(pathStr string, defaultVal ...bool) bool {
 	if val, ok := this.data[pathStr]; ok {
 		if boolval, err := strconv.ParseBool(val); err == nil {
