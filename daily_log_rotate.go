@@ -45,7 +45,11 @@ func (this *DailyLogRotate) Write(p []byte) (n int, err error) {
 	if(nil == this.fd){ //ignore any error
 		return 0, nil
 	}
-	return this.fd.Write(p)
+	n, err = this.fd.Write(p)
+	if err != nil {
+		this.Close()
+	}
+	return
 }
 
 //close log
