@@ -11,10 +11,10 @@ import (
 )
 
 //start http server
-func StartHttpServer(host string, port int) {
+func StartHttpServer(app *App, host string, port int) {
 	var wait time.Duration = time.Second * 30
 
-	router := NewRouter()
+	router := NewRouter(app)
 	addr := fmt.Sprintf("%s:%d", host, port)
 
 	srv := &http.Server{
@@ -44,11 +44,14 @@ func StartHttpServer(host string, port int) {
 	// Create a deadline to wait for.
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 	defer cancel()
-	// Doesn't block if no connections, but will otherwise wait
-	// until the timeout deadline.
-	srv.Shutdown(ctx)
-	// Optionally, you could run srv.Shutdown in a goroutine and block on
-	// <-ctx.Done() if your application should wait for other services
-	// to finalize based on context cancellation.
-	log.Println("http server shutting down")	
+
+	go func() {
+		// Doesn't block if no connections, but will otherwise wait
+		// until the timeout deadline.		
+		srv.Shutdown(ctx)
+	}()
+
+	log.Println("http server shutting down")
+
+	<-ctx.Done()
 }

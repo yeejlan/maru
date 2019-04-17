@@ -69,10 +69,12 @@ func (this *App) Init() {
 	config := NewConfig(configFile)
 	this.config = config
 
-	//check log path
-	if config.Get("log.path") == "" {
-		log.Fatal(`Please set "log.path" in config file`)
+	//set log output
+	logpath := config.Get("log.path", "logs")
+	if(this.env < DEVELOPMENT) {
+		log.SetOutput(NewDailyLogRotate(logpath, this.appName))
 	}
+
 	//todo: initialize logger
 	log.Printf("%s starting with %s", this, this.config.ConfigFile)
 }
@@ -85,19 +87,16 @@ func (this *App) Config() *Config {
 
 //get app env
 func (this *App) Env() int {
-	this.checkInit()
 	return this.env
 }
 
 //get app env string
 func (this *App) EnvString() string {
-	this.checkInit()
 	return this.envString
 }
 
 //get app name
 func (this *App) AppName() string {
-	this.checkInit()
 	return this.appName
 }
 
