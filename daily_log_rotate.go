@@ -52,10 +52,16 @@ func (this *DailyLogRotate) Write(p []byte) (n int, err error) {
 	return
 }
 
+//sync log
+func (this *DailyLogRotate) Sync() {
+	if(this.fd != nil) {
+		this.fd.Sync()
+	}
+}
+
 //close log
 func (this *DailyLogRotate) Close() {
 	if(this.fd != nil) {
-		this.fd.Sync()
 		this.fd.Close()
 		this.fd = nil
 	}
