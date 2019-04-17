@@ -69,13 +69,10 @@ func (this *App) Init() {
 	config := NewConfig(configFile)
 	this.config = config
 
-	//set log output
-	logpath := config.Get("log.path", "logs")
-	if(this.env < DEVELOPMENT) {
-		log.SetOutput(NewDailyLogRotate(logpath, this.appName))
-	}
-
 	//todo: initialize logger
+	logpath := config.Get("log.path", "logs")
+	_ = logpath
+
 	log.Printf("%s starting with %s", this, this.config.ConfigFile)
 }
 
