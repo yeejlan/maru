@@ -37,8 +37,8 @@ func (this *DailyLogRotate) Write(p []byte) (n int, err error) {
 	if(fname != this.filename || nil == this.fd){
 		this.Close()
 		this.filename = fname
-		//ignore openfile error
 		fullpath := path.Join(this.logdir, fname)
+		//ignore openfile error
 		fd, _ := os.OpenFile(fullpath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 		this.fd = fd
 	}
@@ -48,7 +48,7 @@ func (this *DailyLogRotate) Write(p []byte) (n int, err error) {
 	return this.fd.Write(p)
 }
 
-//close logs
+//close log
 func (this *DailyLogRotate) Close() {
 	if(this.fd != nil) {
 		this.fd.Close()
