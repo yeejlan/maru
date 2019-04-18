@@ -40,17 +40,10 @@ func InitLog(basedir string) {
 }
 
 //log message
-func Log(prefix string, v ...interface{}) {
-	s := fmt.Sprint(v...)
+func Log(prefix string, message string) {
+	msg := fmt.Sprintf("%s %s\n", time.Now().Format(time.RFC3339), message)
 	logger := getLogger(prefix)
-	logger.log([]byte(s))
-}
-
-//log message with format
-func Logf(prefix string, format string, v ...interface{}) {
-	s := fmt.Sprintf(format, v...)
-	logger := getLogger(prefix)
-	logger.log([]byte(s))
+	logger.log([]byte(msg))
 }
 
 //a logger rotate by date
