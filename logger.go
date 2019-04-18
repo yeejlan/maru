@@ -46,6 +46,15 @@ func Log(prefix string, message string) {
 	logger.log([]byte(msg))
 }
 
+//log message with format
+func Logf(prefix string, format string, v ...interface{}) {
+	s := fmt.Sprintf(format, v...)
+	msg := fmt.Sprintf("%s %s\n", time.Now().Format(time.RFC3339), s)
+	logger := getLogger(prefix)
+	logger.log([]byte(s))
+	logger.log([]byte(msg))
+}
+
 //logger rotate by date
 type Logger struct {
 	prefix string
