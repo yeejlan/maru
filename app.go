@@ -97,7 +97,7 @@ func (this *App) EnvString() string {
 }
 
 //get app name
-func (this *App) AppName() string {
+func (this *App) Name() string {
 	return this.appName
 }
 
