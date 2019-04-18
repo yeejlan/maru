@@ -46,9 +46,8 @@ func Log(prefix string, message string) {
 	logger.log([]byte(msg))
 }
 
-//a logger rotate by date
+//logger rotate by date
 type Logger struct {
-	mu sync.Mutex
 	prefix string
 	basedir string
 	logfile string
