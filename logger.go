@@ -57,7 +57,7 @@ type Logger struct {
 //create new logger without cache
 func NewLogger(baseDir string, prefix string) *Logger {
 	p := getLogPath(prefix)
-	fd := openLogFile(baseDir, p, prefix, true)
+	fd := openLogFile(baseDir, p, true)
 	return &Logger{
 		prefix: prefix,
 		basedir: baseDir,
@@ -68,7 +68,8 @@ func NewLogger(baseDir string, prefix string) *Logger {
 
 //get logger from cache
 func getLogger(prefix string) *Logger {
-	logger, ok := lholder.cache.get(prefix)
+	p := getLogPath(prefix)
+	logger, ok := lholder.cache.get(p.logfile)
 	if ok {
 		return logger
 	}
@@ -83,7 +84,7 @@ func (this *Logger) Write(payload []byte) (n int, err error) {
 	p := getLogPath(this.prefix)
 	if(p.logfile != this.logfile || this.fd == nil){
 		this.Close()
-		fd := openLogFile(this.basedir, p, this.prefix, false)
+		fd := openLogFile(this.basedir, p, false)
 		this.fd = fd
 		this.logfile = p.logfile
 	}
@@ -117,7 +118,7 @@ func (this *Logger) Close() {
 	}
 }
 
-func openLogFile(baseDir string, p *logPath, prefix string, isPanic bool) *os.File {
+func openLogFile(baseDir string, p *logPath, isPanic bool) *os.File {
 	fullpath := path.Join(baseDir, p.logfile)
 	fd, err := os.OpenFile(fullpath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, logFilePerm)
 	if err != nil {
