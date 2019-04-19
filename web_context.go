@@ -23,3 +23,13 @@ func newWebContext(w http.ResponseWriter, req *http.Request) *WebContext {
 		W: w,
 	}
 }
+
+func (this *WebContext) Abort(status int, body string) {
+	this.W.WriteHeader(status)
+	this.W.Write([]byte(body))
+}
+
+func (this WebContext) Redirect(url string) {
+	this.W.Header().Set("Location", url)
+	this.W.WriteHeader(302)
+}
