@@ -64,12 +64,16 @@ type Logger struct {
 }
 
 //create new logger without cache
-func NewLogger(baseDir string, prefix string) *Logger {
+func NewLogger(basedir string, prefix string) *Logger {
+	return newLogger(basedir, prefix, true)
+}
+
+func newLogger(basedir string, prefix string, isPanic bool) *Logger {
 	p := getLogPath(prefix)
-	fd := openLogFile(baseDir, p, true)
+	fd := openLogFile(basedir, p, isPanic)
 	return &Logger{
 		prefix: prefix,
-		basedir: baseDir,
+		basedir: basedir,
 		logfile: p.logfile,
 		fd: fd,
 	}
@@ -83,7 +87,7 @@ func getLogger(prefix string) *Logger {
 		return logger
 	}
 	//not found in cache, create new one
-	logger = NewLogger(lholder.basedir, prefix)
+	logger = newLogger(lholder.basedir, prefix, false)
 	lholder.cache.put(logger.logfile, logger)
 	return logger
 }
@@ -112,14 +116,14 @@ func (this *Logger) log(p []byte) (n int, err error) {
 	return
 }
 
-//sync logger
+//sync log
 func (this *Logger) Sync() {
 	if(this.fd != nil) {
 		this.fd.Sync()
 	}
 }
 
-//close logger
+//close log
 func (this *Logger) Close() {
 	if(this.fd != nil) {
 		this.fd.Close()
@@ -131,7 +135,7 @@ func openLogFile(baseDir string, p *logPath, isPanic bool) *os.File {
 	fullpath := path.Join(baseDir, p.logfile)
 	fd, err := os.OpenFile(fullpath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, logFilePerm)
 	if err != nil {
-		//try mkdir first
+		//try again, mkdir first
 		os.Mkdir(path.Join(baseDir, p.y), logDirPerm)
 		os.Mkdir(path.Join(baseDir, p.y, p.m), logDirPerm)
 		fd, err = os.OpenFile(fullpath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, logFilePerm)
@@ -143,7 +147,9 @@ func openLogFile(baseDir string, p *logPath, isPanic bool) *os.File {
 }
 
 type logPath struct {
+	//year
 	y string
+	//month
 	m string
 	logfile string
 }
