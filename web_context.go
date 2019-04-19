@@ -12,6 +12,8 @@ type WebContext struct {
 	Controller string
 	//current action
 	Action string
+	//internal server error
+	Error interface{}
 	Param StringMap
 	Cookie StringMap
 	Session map[string]interface{}
