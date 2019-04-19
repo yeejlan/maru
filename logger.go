@@ -12,7 +12,7 @@ import (
 
 const(
 	//max opened log files
-	maxFileOpened = 30
+	maxFileOpened = 16
 	logFilePerm = 0666
 	logDirPerm = 0777
 )
