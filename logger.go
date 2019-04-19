@@ -81,15 +81,7 @@ func newLogger(basedir string, prefix string, isPanic bool) *Logger {
 
 //get logger from cache
 func getLogger(prefix string) *Logger {
-	p := getLogPath(prefix)
-	logger, ok := lholder.cache.get(p.logfile)
-	if ok {
-		return logger
-	}
-	//not found in cache, create new one
-	logger = newLogger(lholder.basedir, prefix, false)
-	lholder.cache.put(logger.logfile, logger)
-	return logger
+	return lholder.cache.getOrNew(prefix)
 }
 
 //implement io.Writer interface for log module
@@ -180,9 +172,6 @@ func newWriterCache(maxItem int) *writerCache {
 }
 
 func (this *writerCache) put(logfile string, writer *Logger) {
-	this.mu.Lock()
-	defer this.mu.Unlock()
-
 	this.cache[logfile] = writer
 	this.lst.PushBack(logfile)
 
@@ -199,29 +188,21 @@ func (this *writerCache) put(logfile string, writer *Logger) {
 }
 
 func (this *writerCache) get(logfile string) (l *Logger, ok bool) {
-	this.mu.Lock()
-	defer this.mu.Unlock()
-
 	l, ok = this.cache[logfile]
 	return
 }
 
-func (this *writerCache) remove(logfile string) {
+func (this *writerCache) getOrNew(prefix string) *Logger {
 	this.mu.Lock()
 	defer this.mu.Unlock()
 
-	logger := this.cache[logfile]
-	if logger != nil {
-		logger.Close()
+	p := getLogPath(prefix)
+	logger, ok := this.get(p.logfile)
+	if ok {
+		return logger
 	}
-	delete(this.cache, logfile)
-
-	for e := this.lst.Front(); e != nil; e = e.Next() {
-		s := e.Value.(string)
-		if(s == logfile) {
-			this.lst.Remove(e)
-			break
-		}
-	}
+	//not found in cache, create new one
+	logger = newLogger(lholder.basedir, prefix, false)
+	this.put(logger.logfile, logger)
+	return logger
 }
-
