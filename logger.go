@@ -12,7 +12,7 @@ import (
 
 const(
 	//max opened log files
-	maxFileOpened = 10
+	maxFileOpened = 30
 	logFilePerm = 0666
 	logDirPerm = 0777
 )
@@ -51,7 +51,6 @@ func Logf(prefix string, format string, v ...interface{}) {
 	s := fmt.Sprintf(format, v...)
 	msg := fmt.Sprintf("%s %s\n", time.Now().Format(time.RFC3339), s)
 	logger := getLogger(prefix)
-	logger.log([]byte(s))
 	logger.log([]byte(msg))
 }
 
