@@ -62,14 +62,14 @@ func (this *App) Init() {
 	this.isInit = true
 	
 	//set log flag
-	log.SetFlags(log.LstdFlags | log.Llongfile)
+	//log.SetFlags(log.LstdFlags | log.Llongfile)
 
 	//load config file
 	configFile := fmt.Sprintf("config/%s/%s.ini", this.envString, this.appName)
 	config := NewConfig(configFile)
 	this.config = config
 
-	//set log output
+	//set log path
 	logpath := config.Get("log.path", "logs")
 	InitLog(logpath)
 
