@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"os"
 	"path"
+	"strings"
 )
 
 //action info
@@ -84,8 +85,8 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	routeMatched := false
 	controller := ""
 	action := ""
-	_ = controller
-	_ = action
+	ctx := newWebContext(w, req)
+
 	//serve static files, there is no security check, DISABLED on production server
 	if(this.App.Env() > PRODUCTION) {
 		staticFile := path.Join("public", requestPath)
@@ -93,6 +94,27 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 			http.ServeFile(w, req, staticFile)
 			return
 		}
+	}
+
+	//parse request params
+	if(req.Method == "POST"){
+		if(req.Header.Get("Content-Type") == "multipart/form-data") {
+			req.ParseMultipartForm(5*1024*1024)
+		}else{
+			req.ParseForm()
+		}
+	}
+
+	//create param map
+	paramMap := make(map[string]string)
+	for key, val := range req.Form {
+		paramMap[key] = val[0]
+	}
+
+	//create cookie map
+	cookieMap := make(map[string]string)
+	for _, cookie := range req.Cookies() {
+		cookieMap[cookie.Name] = cookie.Value
 	}
 
 	//handle regex route
@@ -110,10 +132,31 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 
 	//handle normal controller/action
 	if !routeMatched {
-
+        if requestPath == "/" { //home page
+            controller = "home"
+            action = "index"
+        }else{
+            pathStr := requestPath[1:]
+            if strings.HasSuffix(requestPath, "/"){
+                pathStr = requestPath[1:len(requestPath)-1]
+            }
+            pathArr := strings.SplitN(pathStr, "/", 2)
+            controller = pathArr[0]
+            if len(pathArr) == 1 { //only have section
+                action = "index"
+            }else { //have section and action
+                action = pathArr[1]      
+            }
+        }
 	}
 
-	fmt.Fprintf(w, "Hello, you've requested: %s\n", req.URL.Path)
+	ctx.Param = paramMap
+	ctx.Cookie = cookieMap
+	this.callAction(ctx, controller, action)
+}
+
+func (this *Router) callAction(ctx *WebContext, controller string, action string) {
+	fmt.Fprintf(ctx.W, "Hello, you've requested: %s\n", ctx.Req.URL.Path)
 }
 
 func isRegularFile(filePath string) bool {
