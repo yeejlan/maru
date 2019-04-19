@@ -202,6 +202,8 @@ func (this *writerCache) getOrNew(prefix string) *Logger {
 	}
 	//not found in cache, create new one
 	logger = newLogger(lholder.basedir, prefix, false)
-	this.put(logger.logfile, logger)
+	if logger.fd != nil {
+		this.put(logger.logfile, logger)
+	}
 	return logger
 }
