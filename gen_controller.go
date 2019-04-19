@@ -68,7 +68,7 @@ func (this *genController) Generate() {
 	buffer.WriteString("\n}")
 
 	//write file
-	f, err := os.OpenFile(this.outFile, os.O_RDWR|os.O_CREATE, 0644)
+	f, err := os.OpenFile(this.outFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,7 +99,7 @@ func (this *genController) getControllerList() {
 func (this *genController) getActionList(cpath string) {
 	controller := strings.TrimSuffix(filepath.Base(cpath), this.controllerSuffix)
 	//func (this *TestController) indexAction() string {
-	validAction := regexp.MustCompile(`func[[:space:]]+\(.*` + controller+ `.*\)[[:space:]]+([a-zA-Z0-9]+)Action\([[:space:]]*\).*\{`)
+	validAction := regexp.MustCompile(`func[[:space:]]+\(.*` + controller+ `.*\)[[:space:]]+([A-Z][a-zA-Z0-9]+)Action\([[:space:]]*\).*\{`)
 	file, err := os.Open(cpath)
 		if err != nil {
 		log.Fatal(err)
