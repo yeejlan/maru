@@ -131,22 +131,22 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 
 	//handle normal controller/action
 	if !routeMatched {
-        if requestPath == "/" { //home page
-            controller = "home"
-            action = "index"
-        }else{
-            pathStr := requestPath[1:]
-            if strings.HasSuffix(requestPath, "/"){
-                pathStr = requestPath[1:len(requestPath)-1]
-            }
-            pathArr := strings.SplitN(pathStr, "/", 2)
-            controller = pathArr[0]
-            if len(pathArr) == 1 { //only have section
-                action = "index"
-            }else { //have section and action
-                action = pathArr[1]      
-            }
-        }
+		if requestPath == "/" { //home page
+			controller = "home"
+			action = "index"
+		}else{
+			pathStr := requestPath[1:]
+			if strings.HasSuffix(requestPath, "/"){
+				pathStr = requestPath[1:len(requestPath)-1]
+			}
+			pathArr := strings.SplitN(pathStr, "/", 2)
+			controller = pathArr[0]
+			if len(pathArr) == 1 { //only have section
+				action = "index"
+			}else { //have section and action
+				action = pathArr[1]
+			}
+		}
 	}
 
 	ctx.Param = paramMap
