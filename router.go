@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"reflect"
 )
 
 //action info
@@ -97,12 +98,10 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	}
 
 	//parse request params
-	if(req.Method == "POST"){
-		if(req.Header.Get("Content-Type") == "multipart/form-data") {
-			req.ParseMultipartForm(5*1024*1024)
-		}else{
-			req.ParseForm()
-		}
+	if req.Method == "POST" && req.Header.Get("Content-Type") == "multipart/form-data" {
+		req.ParseMultipartForm(5*1024*1024)
+	}else{
+		req.ParseForm()
 	}
 
 	//create param map
@@ -156,7 +155,72 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 }
 
 func (this *Router) callAction(ctx *WebContext, controller string, action string) {
-	fmt.Fprintf(ctx.W, "Hello, you've requested: %s\n", ctx.Req.URL.Path)
+	defer func(){
+		if e := recover(); e != nil {
+			ctx.Error = e
+			internalServerError(ctx)
+		}
+	}()
+
+	actionKey := strings.ToLower(fmt.Sprintf("%s/%s", controller, action))
+	ap, ok := actionMap[actionKey]
+	if !ok {
+		pageNotFound(ctx)
+		return
+	}
+	callMethod(ctx, &ap)
+}
+
+func callMethod(ctx *WebContext, ap *actionPair) {
+	t := reflect.TypeOf(ap.I)
+	instancePtr := reflect.New(t)
+	instance := reflect.Indirect(instancePtr)
+
+	//bind ctx
+	ctxVal := instance.FieldByName("WebContext")
+	if ctxVal.IsValid() {
+		ctxVal.Set(reflect.ValueOf(ctx))
+	}
+
+	//call "Before()"
+	beforeFunc := instancePtr.MethodByName("Before")
+	if beforeFunc.IsValid() {
+		beforeFunc.Call([]reflect.Value{})
+	}
+
+	//call "SomeAction()"
+	actionFunc := instancePtr.MethodByName(ap.A + "Action")
+	if !actionFunc.IsValid() {
+		pageNotFound(ctx)
+		return
+	}
+	retVal := actionFunc.Call([]reflect.Value{})
+
+	//output
+	if(len(retVal) == 0) {
+		return
+	}
+	fmt.Fprintf(ctx.W, "%s", retVal[0])
+}
+
+func pageNotFound(ctx *WebContext) {
+	actionKey := "error/page404"
+	ap, ok := actionMap[actionKey]
+	if !ok {
+		ctx.Abort(404, "Page Not Found!")
+		return
+	}
+	callMethod(ctx, &ap)
+}
+
+func internalServerError(ctx *WebContext) {
+	actionKey := "error/page500"
+	ap, ok := actionMap[actionKey]
+	if !ok {
+		ctx.Abort(500, "Internal Server Error!")
+		return
+	}
+	callMethod(ctx, &ap)
 }
 
 func isRegularFile(filePath string) bool {
