@@ -6,12 +6,11 @@ import (
 	"log"
 	"strings"
 	"fmt"
-	"strconv"
 )
 
 type Config struct {
 	ConfigFile string
-	data map[string]string
+	StringMap
 }
 
 //load new config
@@ -43,60 +42,16 @@ func NewConfig(filePath string) *Config {
 
 	return &Config {
 		ConfigFile: filePath,
-		data: data,
+		StringMap: data,
 	}
 }
 
 //implement string interface
 func (this *Config) String() string {
-	return fmt.Sprintf("%#v", *this)
+	return fmt.Sprintf("Config{ConfigFile: %s, StringMap: %#v}", this.ConfigFile, this.StringMap)
 }
 
 //get config map
 func (this *Config) GetMap() map[string]string {
-	return this.data
-}
-
-//get string value
-func (this *Config) Get(pathStr string, defaultVal ...string) string {
-	if val, ok := this.data[pathStr]; ok {
-		return val
-	}
-	if(len(defaultVal) > 0) {
-		return defaultVal[0]
-	}
-	return ""
-}
-
-//get string value, alias for "Get"
-func (this *Config) GetString(pathStr string, defaultVal ...string) string {
-	return this.Get(pathStr, defaultVal...)
-}
-
-//get int value
-func (this *Config) GetInt(pathStr string, defaultVal ...int) int {
-	if val, ok := this.data[pathStr]; ok {
-		if intval, err := strconv.Atoi(val); err == nil {
-			return intval
-		}
-	}
-
-	if(len(defaultVal) > 0) {
-		return defaultVal[0]
-	}
-	return 0
-}
-
-//get bool value
-func (this *Config) GetBool(pathStr string, defaultVal ...bool) bool {
-	if val, ok := this.data[pathStr]; ok {
-		if boolval, err := strconv.ParseBool(val); err == nil {
-			return boolval
-		}
-	}
-
-	if(len(defaultVal) > 0) {
-		return defaultVal[0]
-	}
-	return false
+	return this.StringMap
 }
