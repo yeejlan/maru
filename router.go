@@ -11,38 +11,10 @@ import (
 	"reflect"
 )
 
-//action info
-type actionPair struct {
-	//controller instance, ex. HomeController{}
-	I interface{}
-	//action, ex. "Index"
-	A string 
-}
-
-//implement string interface
-func (this actionPair) String() string {
-	return fmt.Sprintf("ActionPair{I: %T, A: %s}", this.I, this.A)
-}
-
-//action storage, for example: 
-//ActionMap["home/index"] = ActionPair{I: HomeController{}, A: "Index",}
-var actionMap = make(map[string]actionPair)
-
-//url rewite route storage
-var routes = make([]rewriteRoute, 0, 10)
-
-//add a action
-func AddAction(idx string, I interface{}, A string) {
-	action := actionPair{
-		I: I,
-		A: A,
-	}
-	actionMap[idx] = action
-}
-
 //the router for request dispatch
 type Router struct {
 	App *App
+	routes []rewriteRoute
 }
 
 //url rewrite route
@@ -56,14 +28,14 @@ type rewriteRoute struct {
 func NewRouter(app *App) *Router {
 	return &Router{
 		App: app,
+		routes: make([]rewriteRoute, 0, 10),
 	}
 }
-
 
 //add a regex route
 //AddRoute("shop/product/(\d+)", "shop/showprod", array(1 => "prod_id"))
 //will match uri "/shop/product/1001" to "shop" controller and "showprod" action, with ctx.params["prod_id"] = 1001
-func AddRoute(regex string, rewriteTo string, paramMapping map[int]string){
+func (this *Router) AddRoute(regex string, rewriteTo string, paramMapping map[int]string){
 	cr := regexp.MustCompile(regex)
 	route := rewriteRoute{
 		r: regex,
@@ -71,7 +43,7 @@ func AddRoute(regex string, rewriteTo string, paramMapping map[int]string){
 		rewriteTo: rewriteTo,
 		paramMapping: paramMapping,
 	}
-	routes = append(routes, route)
+	this.routes = append(this.routes, route)
 }
 
 //router dispatcher
@@ -88,7 +60,7 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	action := ""
 	ctx := newWebContext(w, req)
 
-	//serve static files, there is no security check, DISABLED on production server
+	//serve static files, there is no security check, must DISABLE on production server
 	if(this.App.Env() > PRODUCTION) {
 		staticFile := path.Join("public", requestPath)
 		if isRegularFile(staticFile) && (req.Method == "GET" || req.Method == "HEAD") {
@@ -117,7 +89,7 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	}
 
 	//handle regex route
-	for _, route := range routes {
+	for _, route := range this.routes {
 		cr := route.compiledR
 		if !cr.MatchString(requestPath) {
 			continue
@@ -126,7 +98,19 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 		if len(match[0]) != len(requestPath) {
 			continue
 		}
-		println(match)
+		//found one
+		routeMatched = true
+		pathArr := strings.SplitN(route.rewriteTo, "/", 2)
+		controller = pathArr[0]
+		action = pathArr[1]
+		for k, v := range route.paramMapping {
+			if(k > (len(match) -1) ){
+				continue
+			}
+			val := match[k]
+			paramMap[v] = val
+		}
+		break
 	}
 
 	//handle normal controller/action

@@ -11,10 +11,9 @@ import (
 )
 
 //start http server
-func StartHttpServer(app *App, host string, port int) {
+func StartHttpServer(app *App, router *Router, host string, port int) {
 	var wait time.Duration = time.Second * 30
 
-	router := NewRouter(app)
 	addr := fmt.Sprintf("%s:%d", host, port)
 
 	srv := &http.Server{
