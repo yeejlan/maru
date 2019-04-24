@@ -119,7 +119,7 @@ func (this *Session) Load() {
 		if(val == "") {
 			return
 		}
-		err = json.Unmarshal([]byte(val), this.data)
+		err = json.Unmarshal([]byte(val), &this.data)
 		if err != nil {
 			log.Print("session load: json.Unmarshal error:", err)
 			return
