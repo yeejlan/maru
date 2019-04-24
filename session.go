@@ -22,6 +22,7 @@ func NewSession() *Session {
 
 //set
 func (this *Session) Set(key string, val interface{}) {
+	this.change()
 	this.data[key] = val
 }
 
@@ -113,6 +114,9 @@ func (this *Session) Load() {
 		val, err := SessionStorage.Load(this.sessionId)
 		if err != nil {
 			log.Print("session load error:", err)
+			return
+		}
+		if(val == "") {
 			return
 		}
 		err = json.Unmarshal([]byte(val), this.data)

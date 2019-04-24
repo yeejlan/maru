@@ -26,10 +26,13 @@ func NewSessionStorageRedis(app *App) *SessionStorageRedis {
 
 func (this *SessionStorageRedis) Load(sessionId string) (string, error) {
 	val, err := this.client.Get(sessionId).Result()
+	if err == redis.Nil { //key not exist
+		return "", nil
+	}
 	return val, err
 }
 
 func (this *SessionStorageRedis) Save(sessionId string, data string) error {
-	err := this.client.Set("key", data, this.expire).Err()
+	err := this.client.Set(sessionId, data, this.expire).Err()
 	return err
 }
