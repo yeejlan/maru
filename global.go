@@ -1,15 +1,16 @@
 package maru
 
 import (
-	"encoding/json"
+	"github.com/json-iterator/go"
 )
 
 var(
 	//Set with go build -ldflags "-X github.com/yeejlan/maru.BuildDir=xxx"
 	BuildDir string
 
-	jsonEncode = json.Marshal
-	jsonDecode = json.Unmarshal
+	json = jsoniter.ConfigCompatibleWithStandardLibrary
+	JsonEncode = json.Marshal
+	JsonDecode = json.Unmarshal
 )
 
 func init() {

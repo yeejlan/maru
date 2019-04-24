@@ -93,7 +93,7 @@ func (this *Session) Save() {
 		return
 	}
 	if(SessionStorage != nil){
-		val, err := jsonEncode(this.data)
+		val, err := JsonEncode(this.data)
 		if err!= nil {
 			log.Print("session save:json.Marshal error:", err)
 			return
@@ -118,7 +118,7 @@ func (this *Session) Load() {
 		if(val == "") {
 			return
 		}
-		err = jsonDecode([]byte(val), &this.data)
+		err = JsonDecode([]byte(val), &this.data)
 		if err != nil {
 			log.Print("session load: json.Unmarshal error:", err)
 			return
