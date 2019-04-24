@@ -1,8 +1,8 @@
 package maru
 
 type ISessionStorage interface {
-	load(sessionId string) string
-	save(sessionId string, data string)
+	Load(sessionId string) (string, error)
+	Save(sessionId string, data string) error
 }
 
 var (

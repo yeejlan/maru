@@ -13,17 +13,23 @@ type SessionStorageRedis struct {
 func NewSessionStorageRedis(app *App) *SessionStorageRedis {
 	sessionExpire := app.Config().GetInt("session.expire.seconds", 3600)
 	storageProvider := app.Config().Get("session.storage.provider")
-	_=storageProvider
+	
+	redisClient := Registry.get(storageProvider)
+	if redisClient == nil {
+		panic("NewSessionStorageRedis() "+storageProvider + " not found")
+	}
 	return &SessionStorageRedis{
 		expire: time.Duration(sessionExpire) * time.Second,
+		client: redisClient.(*redis.Client),
 	}
 }
 
-func (this *SessionStorageRedis) load(sessionId string) string {
-	val, _ := this.client.Get("key").Result()
-	return val
+func (this *SessionStorageRedis) Load(sessionId string) (string, error) {
+	val, err := this.client.Get(sessionId).Result()
+	return val, err
 }
 
-func (this *SessionStorageRedis) save(sessionId string, data string) {
-	this.client.Set("key", "value", this.expire)
+func (this *SessionStorageRedis) Save(sessionId string, data string) error {
+	err := this.client.Set("key", data, this.expire).Err()
+	return err
 }
