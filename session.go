@@ -1,7 +1,6 @@
 package maru
 
 import (
-	"encoding/json"
 	"log"
 )
 
@@ -94,7 +93,7 @@ func (this *Session) Save() {
 		return
 	}
 	if(SessionStorage != nil){
-		val, err := json.Marshal(this.data)
+		val, err := jsonEncode(this.data)
 		if err!= nil {
 			log.Print("session save:json.Marshal error:", err)
 			return
@@ -119,7 +118,7 @@ func (this *Session) Load() {
 		if(val == "") {
 			return
 		}
-		err = json.Unmarshal([]byte(val), &this.data)
+		err = jsonDecode([]byte(val), &this.data)
 		if err != nil {
 			log.Print("session load: json.Unmarshal error:", err)
 			return
