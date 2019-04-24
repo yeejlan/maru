@@ -12,11 +12,3 @@ var(
 	JsonEncode = json.Marshal
 	JsonDecode = json.Unmarshal
 )
-
-func init() {
-	if BuildDir == "" {
-		println("empty")
-	}else{
-		println("not empty")
-	}
-}
