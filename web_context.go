@@ -6,6 +6,7 @@ import (
 
 //web context
 type WebContext struct {
+	App *App
 	Req *http.Request
 	W http.ResponseWriter
 	//current controller
@@ -14,23 +15,71 @@ type WebContext struct {
 	Action string
 	//internal server error
 	Error interface{}
+	//param map
 	Param StringMap
+	//cookie map
 	Cookie StringMap
-	Session map[string]interface{}
+	//session instance
+	Session Session
+
+	sessionName string
+	cookieDomain string
 }
 
-func newWebContext(w http.ResponseWriter, req *http.Request) *WebContext {
+func newWebContext(app *App, w http.ResponseWriter, req *http.Request) *WebContext {
+	sessionName := app.Config().Get("session.name")
+	cookieDomain := app.Config().Get("cookie.domain")
 	return &WebContext{
+		App: app,
 		Req: req,
 		W: w,
+		sessionName: sessionName,
+		cookieDomain: cookieDomain,
 	}
 }
 
+//set cookie
+func (this *WebContext) SetCookie(cookie *http.Cookie) {
+	http.SetCookie(this.W, cookie)
+}
+
+//new session
+func (this *WebContext) NewSession(){
+	if SessionStorage == nil{
+		return
+	}
+	this.Session.Destroy()
+	this.Session.SetId(GetUniqueId())
+
+	cookie := &http.Cookie{
+		Name: this.sessionName,
+		Value: this.Session.Id(),
+		Domain: this.cookieDomain,
+	}
+	this.SetCookie(cookie)
+}
+
+//load session
+func (this *WebContext) LoadSession(){
+	if SessionStorage == nil{
+		return
+	}
+	sessionId := this.Cookie.Get(this.sessionName)
+	if sessionId == ""{
+		this.NewSession()
+	}else{
+		this.Session.SetId(sessionId)
+		this.Session.Load()
+	}
+}
+
+//abort a request
 func (this *WebContext) Abort(status int, body string) {
 	this.W.WriteHeader(status)
 	this.W.Write([]byte(body))
 }
 
+//redirect a request
 func (this WebContext) Redirect(url string) {
 	this.W.Header().Set("Location", url)
 	this.W.WriteHeader(302)

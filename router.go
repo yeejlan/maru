@@ -58,7 +58,7 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	routeMatched := false
 	controller := ""
 	action := ""
-	ctx := newWebContext(w, req)
+	ctx := newWebContext(this.App, w, req)
 
 	//serve static files, there is no security check, must DISABLE on production server
 	if(this.App.Env() > PRODUCTION) {
@@ -166,6 +166,9 @@ func callMethod(ctx *WebContext, ap *actionPair) {
 		ctxVal.Set(reflect.ValueOf(ctx))
 	}
 
+	//load session
+	ctx.LoadSession()
+
 	//call "Before()"
 	beforeFunc := instancePtr.MethodByName("Before")
 	if beforeFunc.IsValid() {
@@ -179,6 +182,9 @@ func callMethod(ctx *WebContext, ap *actionPair) {
 		return
 	}
 	retVal := actionFunc.Call([]reflect.Value{})
+
+	//save session
+	ctx.Session.Save()
 
 	//output
 	if(len(retVal) == 0) {

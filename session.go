@@ -65,6 +65,19 @@ func (this *Session) GetBool(key string, defaultVal ...bool) bool {
 	return false
 }
 
+//delete
+func (this *Session) Delete(key string) {
+	this.change()
+	delete(this.data, key)
+}
+
+//destroy this session
+func (this *Session) Destroy() {
+	this.change()
+	this.data = make(map[string]interface{})
+	this.Save()
+}
+
 //get session id
 func (this *Session) Id() string {
 	return this.sessionId
