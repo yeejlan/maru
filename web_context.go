@@ -84,3 +84,10 @@ func (this WebContext) Redirect(url string) {
 	this.W.Header().Set("Location", url)
 	this.W.WriteHeader(302)
 }
+
+//exit current request
+func (this WebContext) Exit() {
+	panic(internalRequestExit{})
+}
+
+type internalRequestExit struct{}

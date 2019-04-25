@@ -141,6 +141,10 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 func (this *Router) callAction(ctx *WebContext, controller string, action string) {
 	defer func(){
 		if e := recover(); e != nil {
+			_, ok := e.(internalRequestExit)
+			if ok {//internal exit
+				return
+			}
 			ctx.Error = e
 			internalServerError(ctx)
 		}
