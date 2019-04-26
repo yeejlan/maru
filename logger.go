@@ -192,10 +192,11 @@ func (this *writerCache) get(logfile string) (l *Logger, ok bool) {
 }
 
 func (this *writerCache) getOrNew(prefix string) *Logger {
+	p := getLogPath(prefix)
+
 	this.mu.Lock()
 	defer this.mu.Unlock()
 
-	p := getLogPath(prefix)
 	logger, ok := this.get(p.logfile)
 	if ok {
 		return logger
