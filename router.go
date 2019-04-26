@@ -212,6 +212,7 @@ func internalServerError(ctx *WebContext) {
 	ap, ok := actionMap[actionKey]
 	if !ok {
 		ctx.Abort(500, "Internal Server Error!")
+		panic(ctx.Error)
 		return
 	}
 	callMethod(ctx, &ap)

@@ -2,6 +2,8 @@ package maru
 
 import (
 	"log"
+	"strconv"
+	"encoding/json"
 )
 
 type Session struct {
@@ -44,7 +46,10 @@ func (this *Session) GetString(key string, defaultVal ...string) string {
 //get int value
 func (this *Session) GetInt(key string, defaultVal ...int) int {
 	if val, ok := this.data[key]; ok {
-		return val.(int)
+		valStr := val.(json.Number).String()
+		if intval, err := strconv.Atoi(valStr); err == nil {
+			return intval
+		}
 	}
 
 	if(len(defaultVal) > 0) {
@@ -108,7 +113,7 @@ func (this *Session) Save() {
 	if(SessionStorage != nil){
 		val, err := JsonEncode(this.data)
 		if err!= nil {
-			log.Print("session save:json.Marshal error:", err)
+			log.Print("session save:json encode error:", err)
 			return
 		}
 		err = SessionStorage.Save(this.sessionId, string(val[:]))
@@ -131,9 +136,9 @@ func (this *Session) Load() {
 		if(val == "") {
 			return
 		}
-		err = JsonDecode([]byte(val), &this.data)
+		this.data, err = JsonDecodeToMap(val)
 		if err != nil {
-			log.Print("session load: json.Unmarshal error:", err)
+			log.Print("session load: json decode error:", err)
 			return
 		}
 	}
