@@ -30,20 +30,13 @@ type WebContext struct {
 	Session Session
 	//jet template vars
 	View jet.VarMap
-
-	sessionName string
-	cookieDomain string
 }
 
 func newWebContext(app *App, w http.ResponseWriter, req *http.Request) *WebContext {
-	sessionName := app.Config().Get("session.name")
-	cookieDomain := app.Config().Get("cookie.domain")
 	return &WebContext{
 		App: app,
 		Req: req,
 		W: w,
-		sessionName: sessionName,
-		cookieDomain: cookieDomain,
 		View: make(jet.VarMap),
 	}
 }
@@ -62,9 +55,9 @@ func (this *WebContext) NewSession(){
 	this.Session.SetId(GetUniqueId())
 
 	cookie := &http.Cookie{
-		Name: this.sessionName,
+		Name: this.App.SessionName(),
 		Value: this.Session.Id(),
-		Domain: this.cookieDomain,
+		Domain: this.App.CookieDomain(),
 	}
 	this.SetCookie(cookie)
 }
@@ -74,7 +67,7 @@ func (this *WebContext) LoadSession(){
 	if SessionStorage == nil{
 		return
 	}
-	sessionId := this.Cookie.Get(this.sessionName)
+	sessionId := this.Cookie.Get(this.App.SessionName())
 	if sessionId == ""{
 		this.NewSession()
 	}else{

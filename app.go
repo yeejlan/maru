@@ -27,6 +27,8 @@ type App struct {
 	envString string
 	config *Config
 	appName string
+	cookieDomain string
+	sessionName string
 }
 
 //create new App
@@ -77,6 +79,9 @@ func (this *App) Init() {
 		log.SetOutput(NewLogger(logpath, this.appName))
 	}
 
+	this.cookieDomain = this.Config().Get("cookie.domain")
+	this.sessionName = this.Config().Get("session.name")
+
 	//set Jet template to dev mode
 	if(this.env == DEVELOPMENT) {
 		JetSet.SetDevelopmentMode(true)
@@ -104,6 +109,16 @@ func (this *App) EnvString() string {
 //get app name
 func (this *App) Name() string {
 	return this.appName
+}
+
+//get cookie domain
+func (this *App) CookieDomain() string {
+	return this.cookieDomain
+}
+
+//get session name
+func (this *App) SessionName() string {
+	return this.sessionName
 }
 
 func (this *App) checkInit() {
