@@ -51,6 +51,9 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	defer func(){
 		if e := recover(); e != nil {
 			log.Printf("Dispatch error: %v", e)
+			if this.App.Env() == DEVELOPMENT {
+				panic(e)
+			}
 		}
 	}()
 
