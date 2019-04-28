@@ -8,6 +8,9 @@ import (
 	"os"
 	"os/signal"
 	"context"
+	"strings"
+	"github.com/go-redis/redis"
+	"github.com/jmoiron/sqlx"
 )
 
 //start http server
@@ -28,6 +31,7 @@ func StartHttpServer(router *Router, host string, port int) {
 	// Run server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
+			Shutdown()
 			log.Fatal(err)
 		}
 	}()
@@ -53,4 +57,18 @@ func StartHttpServer(router *Router, host string, port int) {
 	log.Println("http server shutting down")
 
 	<-ctx.Done()
+}
+
+//shutdown function, close redis and db connections
+func Shutdown() {
+	for k, v := range Registry.GetMap() {
+		if(strings.HasPrefix(k, "redis.")){
+			redis := v.(*redis.Client)
+			redis.Close()
+		}
+		if(strings.HasPrefix(k, "db.")){
+			db := v.(*sqlx.DB)
+			db.DB.Close()
+		}
+	}
 }
