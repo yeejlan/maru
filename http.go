@@ -12,7 +12,7 @@ import (
 
 //start http server
 func StartHttpServer(router *Router, host string, port int) {
-	var wait time.Duration = time.Second * 30
+	var wait time.Duration = time.Second * 15
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 
