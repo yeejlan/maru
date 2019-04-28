@@ -2,6 +2,12 @@ package maru
 
 import (
 	"net/http"
+	"bytes"
+	"github.com/CloudyKit/jet"
+)
+
+var(
+	JetSet = jet.NewHTMLSet("./templates")
 )
 
 //web context
@@ -21,6 +27,8 @@ type WebContext struct {
 	Cookie StringMap
 	//session instance
 	Session Session
+	//jet template vars
+	View jet.VarMap
 
 	sessionName string
 	cookieDomain string
@@ -35,6 +43,7 @@ func newWebContext(app *App, w http.ResponseWriter, req *http.Request) *WebConte
 		W: w,
 		sessionName: sessionName,
 		cookieDomain: cookieDomain,
+		View: make(jet.VarMap),
 	}
 }
 
@@ -80,14 +89,38 @@ func (this *WebContext) Abort(status int, body string) {
 }
 
 //redirect a request
-func (this WebContext) Redirect(url string) {
+func (this *WebContext) Redirect(url string) {
 	this.W.Header().Set("Location", url)
 	this.W.WriteHeader(302)
 }
 
 //exit current request
-func (this WebContext) Exit() {
+func (this *WebContext) Exit() {
 	panic(internalRequestExit{})
 }
 
 type internalRequestExit struct{}
+
+//render template
+func (this *WebContext) Render(templateName string) {
+	t, err := JetSet.GetTemplate(templateName)
+	if err != nil {
+		panic(err)
+	}
+	if err = t.Execute(this.W, this.View, nil); err != nil {
+		panic(err)
+	}
+}
+
+//render to string
+func (this *WebContext) RenderToString(templateName string) (string, error) {
+	t, err := JetSet.GetTemplate(templateName)
+	if err != nil {
+		return "", err
+	}
+	var buffer bytes.Buffer
+	if err = t.Execute(&buffer, this.View, nil); err != nil {
+		return "", err
+	}
+	return buffer.String(), nil
+}
