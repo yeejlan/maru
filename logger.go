@@ -156,7 +156,7 @@ func getLogPath(prefix string) *logPath {
 }
 
 type writerCache struct {
-	mu sync.Mutex
+	mu sync.RWMutex
 	cache map[string]*Logger
 	lst *list.List
 	maxItem int
@@ -194,10 +194,18 @@ func (this *writerCache) get(logfile string) (l *Logger, ok bool) {
 func (this *writerCache) getOrNew(prefix string) *Logger {
 	p := getLogPath(prefix)
 
+	this.mu.RLock()
+	//from cache
+	logger, ok := this.get(p.logfile)
+	if ok {
+		return logger
+	}
+	this.mu.RUnlock()
+
 	this.mu.Lock()
 	defer this.mu.Unlock()
 
-	logger, ok := this.get(p.logfile)
+	logger, ok = this.get(p.logfile)
 	if ok {
 		return logger
 	}
