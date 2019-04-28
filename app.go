@@ -79,8 +79,8 @@ func (this *App) Init() {
 		log.SetOutput(NewLogger(logpath, this.appName))
 	}
 
-	this.cookieDomain = this.Config().Get("cookie.domain")
-	this.sessionName = this.Config().Get("session.name")
+	this.cookieDomain = config.Get("cookie.domain")
+	this.sessionName = config.Get("session.name")
 
 	//set Jet template to dev mode
 	if(this.env == DEVELOPMENT) {
