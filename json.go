@@ -12,6 +12,9 @@ var(
 
 //decode json to map[string]interface{}, int as json.Number
 func JsonDecodeToMap(data string) (map[string]interface{}, error) {
+	if data == "" {
+		return make(map[string]interface{}), nil
+	}
 	d := json.NewDecoder(strings.NewReader(data))
 	d.UseNumber()
 	var x interface{}

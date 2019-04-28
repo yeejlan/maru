@@ -133,9 +133,6 @@ func (this *Session) Load() {
 			log.Print("session load error:", err)
 			return
 		}
-		if(val == "") {
-			return
-		}
 		this.data, err = JsonDecodeToMap(val)
 		if err != nil {
 			log.Print("session load: json decode error:", err)
