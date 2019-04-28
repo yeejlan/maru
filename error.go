@@ -29,6 +29,22 @@ func NewError(message string, cause ...string) *ErrorChain {
 	}
 }
 
+//Wrap existing error to ErrorChain
+func WrapError(err error) *ErrorChain {
+	chainedErr, ok := err.(*ErrorChain)
+	if ok {
+		return chainedErr
+	}
+	chained := make([]string, 0, 3)
+	detail := getLocation(2)
+	message := fmt.Sprintf("%s", err)
+	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
+	return &ErrorChain {
+		Message: message,
+		Cause: chained,
+	}
+}
+
 //Create a new error chain from existing error
 func FromError(message string, err error) *ErrorChain {
 
