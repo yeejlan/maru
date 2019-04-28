@@ -28,7 +28,7 @@ func NewConfig(filePath string) *Config {
 		if strings.HasPrefix(line, "#") {
 			continue
 		}
-		kv := strings.Split(line, "=")
+		kv := strings.SplitN(line, "=", 2)
 		if(len(kv) == 2) {
 			k := strings.TrimSpace(kv[0])
 			v := strings.TrimSpace(kv[1])
