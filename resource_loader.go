@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"github.com/go-redis/redis"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
 
@@ -23,6 +25,7 @@ func NewResourceLoader(app *App) *ResourceLoader {
 func (this *ResourceLoader) Autoload() {
 	this.AutoloadRedis()
 	this.LoadSessionStorage()
+	this.AutoloadDB()
 }
 
 //autoload redis instances based on config
@@ -74,4 +77,35 @@ func (this *ResourceLoader) LoadSessionStorage() {
 		default:
 			panic("Session storage not supported: " + storageName)
 	}
+}
+
+//autoload db instances based on config
+func (this *ResourceLoader) AutoloadDB() {
+	configFile := fmt.Sprintf("config/%s/db.ini", this.env)
+	config := NewConfig(configFile)
+	configMatcher := regexp.MustCompile("^db\\.([_a-zA-Z0-9]+)\\.driver")
+	for key, _ := range config.GetMap() {
+		if(!configMatcher.MatchString(key)){
+			continue;
+		}
+		//found one
+		dbName := key[0 : len(key) - len(".driver")]
+		if(config.GetBool(dbName + ".autoload")) {
+			//autoload db
+			this.LoadDB(config, dbName)
+		}
+	}
+}
+
+//load one db instance based on config
+func (this *ResourceLoader) LoadDB(config *Config, dbName string) *sqlx.DB {
+	driver := config.Get(dbName + ".driver", "mysql")
+	datasource := config.Get(dbName + ".datasource")
+	db, err := sqlx.Connect(driver, datasource)
+	if(err != nil) {
+		panic(err)
+	}
+
+	Registry.Set(dbName, db)
+	return db
 }
