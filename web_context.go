@@ -7,6 +7,7 @@ import (
 )
 
 var(
+	//jet template set
 	JetSet = jet.NewHTMLSet("./templates")
 )
 

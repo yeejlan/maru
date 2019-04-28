@@ -77,6 +77,11 @@ func (this *App) Init() {
 		log.SetOutput(NewLogger(logpath, this.appName))
 	}
 
+	//set Jet template to dev mode
+	if(this.env == DEVELOPMENT) {
+		JetSet.SetDevelopmentMode(true)
+	}
+
 	log.Printf("%s starting with %s", this, this.config.ConfigFile)
 }
 
