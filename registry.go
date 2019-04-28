@@ -19,10 +19,15 @@ func newRegistry() *registry {
 	}
 }
 
-func (this *registry) get(key string) interface{} {
+func (this *registry) Get(key string) interface{} {
 	return this.storage[key]
 }
 
-func (this *registry) set(key string, val interface{}) {
+func (this *registry) Set(key string, val interface{}) {
 	this.storage[key] = val
+}
+
+//get storage map
+func (this *registry) GetMap() map[string]interface{} {
+	return this.storage
 }

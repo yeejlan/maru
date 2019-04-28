@@ -54,10 +54,11 @@ func (this *ResourceLoader) LoadRedis(config *Config, redisName string) *redis.C
 		DB: database,
 	})
 
-	Registry.set(redisName, client)
+	Registry.Set(redisName, client)
 	return client
 }
 
+//load session storage
 func (this *ResourceLoader) LoadSessionStorage() {
 	sessionEnable := this.app.Config().GetBool("session.enable")
 	storageName := this.app.Config().Get("session.storage")

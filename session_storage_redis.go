@@ -14,7 +14,7 @@ func NewSessionStorageRedis(app *App) *SessionStorageRedis {
 	sessionExpire := app.Config().GetInt("session.expire.seconds", 3600)
 	storageProvider := app.Config().Get("session.storage.provider")
 	
-	redisClient := Registry.get(storageProvider)
+	redisClient := Registry.Get(storageProvider)
 	if redisClient == nil {
 		panic("NewSessionStorageRedis() "+storageProvider + " not found")
 	}
