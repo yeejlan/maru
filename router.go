@@ -159,6 +159,8 @@ func (this *Router) callAction(ctx *WebContext, controller string, action string
 		pageNotFound(ctx)
 		return
 	}
+	ctx.Controller = controller
+	ctx.Action = action
 	callMethod(ctx, &ap)
 }
 

@@ -27,7 +27,7 @@ type WebContext struct {
 	//cookie map
 	Cookie StringMap
 	//session instance
-	Session Session
+	Session *Session
 	//jet template vars
 	View jet.VarMap
 }
@@ -38,6 +38,7 @@ func newWebContext(app *App, w http.ResponseWriter, req *http.Request) *WebConte
 		Req: req,
 		W: w,
 		View: make(jet.VarMap),
+		Session: NewSession(),
 	}
 }
 
