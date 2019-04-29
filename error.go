@@ -12,10 +12,6 @@ type ErrorChain struct {
 	Cause []string
 }
 
-func init() {
-	BuildDir = strings.ReplaceAll(BuildDir, "\\", "/")
-}
-
 //Create a new error chain
 func NewError(message string, cause ...string) *ErrorChain {
 
