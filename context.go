@@ -12,7 +12,7 @@ var(
 )
 
 //web context
-type WebContext struct {
+type Ctx struct {
 	App *App
 	Req *http.Request
 	W http.ResponseWriter
@@ -32,8 +32,8 @@ type WebContext struct {
 	View jet.VarMap
 }
 
-func newWebContext(app *App, w http.ResponseWriter, req *http.Request) *WebContext {
-	return &WebContext{
+func newCtx(app *App, w http.ResponseWriter, req *http.Request) *Ctx {
+	return &Ctx{
 		App: app,
 		Req: req,
 		W: w,
@@ -43,12 +43,12 @@ func newWebContext(app *App, w http.ResponseWriter, req *http.Request) *WebConte
 }
 
 //set cookie
-func (this *WebContext) SetCookie(cookie *http.Cookie) {
+func (this *Ctx) SetCookie(cookie *http.Cookie) {
 	http.SetCookie(this.W, cookie)
 }
 
 //new session
-func (this *WebContext) NewSession(){
+func (this *Ctx) NewSession(){
 	if SessionStorage == nil{
 		return
 	}
@@ -64,7 +64,7 @@ func (this *WebContext) NewSession(){
 }
 
 //load session
-func (this *WebContext) LoadSession(){
+func (this *Ctx) LoadSession(){
 	if SessionStorage == nil{
 		return
 	}
@@ -78,26 +78,26 @@ func (this *WebContext) LoadSession(){
 }
 
 //abort a request
-func (this *WebContext) Abort(status int, body string) {
+func (this *Ctx) Abort(status int, body string) {
 	this.W.WriteHeader(status)
 	this.W.Write([]byte(body))
 }
 
 //redirect a request
-func (this *WebContext) Redirect(url string) {
+func (this *Ctx) Redirect(url string) {
 	this.W.Header().Set("Location", url)
 	this.W.WriteHeader(302)
 }
 
 //exit current request
-func (this *WebContext) Exit() {
+func (this *Ctx) Exit() {
 	panic(internalRequestExit{})
 }
 
 type internalRequestExit struct{}
 
 //render template
-func (this *WebContext) Render(templateName string) {
+func (this *Ctx) Render(templateName string) {
 	t, err := JetSet.GetTemplate(templateName)
 	if err != nil {
 		panic(err)
@@ -108,7 +108,7 @@ func (this *WebContext) Render(templateName string) {
 }
 
 //render to string
-func (this *WebContext) RenderToString(templateName string) (string, error) {
+func (this *Ctx) RenderToString(templateName string) (string, error) {
 	t, err := JetSet.GetTemplate(templateName)
 	if err != nil {
 		return "", err

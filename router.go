@@ -61,7 +61,7 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	routeMatched := false
 	controller := ""
 	action := ""
-	ctx := newWebContext(this.App, w, req)
+	ctx := newCtx(this.App, w, req)
 
 	//serve static files, there is no security check, must DISABLE on production server
 	if(this.App.Env() > PRODUCTION) {
@@ -141,7 +141,7 @@ func (this *Router) ServeHTTP(w http.ResponseWriter, req *http.Request){
 	this.callAction(ctx, controller, action)
 }
 
-func (this *Router) callAction(ctx *WebContext, controller string, action string) {
+func (this *Router) callAction(ctx *Ctx, controller string, action string) {
 	defer func(){
 		if e := recover(); e != nil {
 			_, ok := e.(internalRequestExit)
@@ -164,13 +164,13 @@ func (this *Router) callAction(ctx *WebContext, controller string, action string
 	callMethod(ctx, &ap)
 }
 
-func callMethod(ctx *WebContext, ap *actionPair) {
+func callMethod(ctx *Ctx, ap *actionPair) {
 	t := reflect.TypeOf(ap.I)
 	instancePtr := reflect.New(t)
 	instance := reflect.Indirect(instancePtr)
 
 	//bind ctx
-	ctxVal := instance.FieldByName("WebContext")
+	ctxVal := instance.FieldByName("Ctx")
 	if ctxVal.IsValid() {
 		ctxVal.Set(reflect.ValueOf(ctx))
 	}
@@ -202,7 +202,7 @@ func callMethod(ctx *WebContext, ap *actionPair) {
 	fmt.Fprintf(ctx.W, "%s", retVal[0])
 }
 
-func pageNotFound(ctx *WebContext) {
+func pageNotFound(ctx *Ctx) {
 	actionKey := "error/page404"
 	ap, ok := actionMap[actionKey]
 	if !ok {
@@ -212,7 +212,7 @@ func pageNotFound(ctx *WebContext) {
 	callMethod(ctx, &ap)
 }
 
-func internalServerError(ctx *WebContext) {
+func internalServerError(ctx *Ctx) {
 	actionKey := "error/page500"
 	ap, ok := actionMap[actionKey]
 	if !ok {
