@@ -9,6 +9,7 @@ import (
 	"path"
 	"strings"
 	"reflect"
+	"runtime/debug"
 )
 
 //the router for request dispatch
@@ -148,7 +149,20 @@ func (this *Router) callAction(ctx *Ctx, controller string, action string) {
 			if ok {//internal exit
 				return
 			}
-			ctx.Error = e
+			errStr := fmt.Sprintf("%#v\n", e)
+			/*
+			for i := 1; ; i += 1 {
+				pc, file, line, ok := runtime.Caller(i)
+				if !ok {
+					break
+				}
+				file = strings.TrimPrefix(file, BuildDir)
+				funcName := runtime.FuncForPC(pc).Name()
+				errStr += fmt.Sprintf("\r\n%s(): %s: %d", funcName, file, line)
+			}
+			*/
+			errStr += string(debug.Stack())
+			ctx.Error = errStr
 			internalServerError(ctx)
 		}
 	}()
