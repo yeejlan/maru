@@ -6,28 +6,28 @@ import(
 	"strings"
 )
 
-//ErrorChain struct to track the root error
-type ErrorChain struct {
+//Error struct to track the error
+type Error struct {
 	Message string
 	Cause []string
 }
 
 //Create a new error chain
-func NewError(message string, cause ...string) *ErrorChain {
+func NewError(message string, cause ...string) *Error {
 
 	chained := make([]string, 0, 3)
 	detail := getLocation(2)
 	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
 	chained = append(chained, cause...)
-	return &ErrorChain {
+	return &Error {
 		Message: message,
 		Cause: chained,
 	}
 }
 
 //Wrap existing error to ErrorChain
-func WrapError(err error, location ...int) *ErrorChain {
-	chainedErr, ok := err.(*ErrorChain)
+func WrapError(err error, location ...int) *Error {
+	chainedErr, ok := err.(*Error)
 	if ok {
 		return chainedErr
 	}
@@ -40,14 +40,14 @@ func WrapError(err error, location ...int) *ErrorChain {
 	}
 	message := fmt.Sprintf("%s", err)
 	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
-	return &ErrorChain {
+	return &Error {
 		Message: message,
 		Cause: chained,
 	}
 }
 
 //Create a new error chain from existing error
-func FromError(message string, err error, location ...int) *ErrorChain {
+func FromError(message string, err error, location ...int) *Error {
 
 	chained := make([]string, 0, 5)
 	var detail string
@@ -57,20 +57,20 @@ func FromError(message string, err error, location ...int) *ErrorChain {
 		detail = getLocation(2)
 	}
 	chained = append(chained, fmt.Sprintf("%s {%s}", message, detail))
-	chainedErr, ok := err.(*ErrorChain)
+	chainedErr, ok := err.(*Error)
 	if ok {
 		chained = append(chained, chainedErr.Cause...)
 	}else {
 		chained = append(chained, fmt.Sprintf("%s", err))
 	}
-	return &ErrorChain {
+	return &Error {
 		Message: message,
 		Cause: chained,
 	}
 }
 
 //implement error interface
-func (this *ErrorChain) Error() string {
+func (this *Error) Error() string {
 	err := strings.Join(this.Cause, ", ")
 	return err
 }
