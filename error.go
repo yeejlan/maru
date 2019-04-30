@@ -12,7 +12,7 @@ type Error struct {
 	Cause []string
 }
 
-//Create a new error chain
+//Create a new error
 func NewError(message string, cause ...string) *Error {
 
 	chained := make([]string, 0, 3)
@@ -25,7 +25,7 @@ func NewError(message string, cause ...string) *Error {
 	}
 }
 
-//Wrap existing error to ErrorChain
+//Wrap existing error
 func WrapError(err error, location ...int) *Error {
 	chainedErr, ok := err.(*Error)
 	if ok {
@@ -46,7 +46,7 @@ func WrapError(err error, location ...int) *Error {
 	}
 }
 
-//Create a new error chain from existing error
+//Create a new error from existing error
 func FromError(message string, err error, location ...int) *Error {
 
 	chained := make([]string, 0, 5)
