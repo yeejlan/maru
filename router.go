@@ -179,8 +179,7 @@ func (this *Router) callAction(ctx *Ctx, controller string, action string) {
 }
 
 func callMethod(ctx *Ctx, ap *actionPair) {
-	t := reflect.TypeOf(ap.I)
-	instancePtr := reflect.New(t)
+	instancePtr := reflect.New(ap.T)
 	instance := reflect.Indirect(instancePtr)
 
 	//bind ctx

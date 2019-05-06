@@ -21,6 +21,7 @@ var tpl = `
 //auto generated file, please do not modify.
 
 import "github.com/yeejlan/maru"
+import "reflect"
 
 func LoadActions() {
 `
@@ -59,8 +60,8 @@ func (this *genController) Generate() {
 	buffer.WriteString(tpl)	
 	for _, key := range sortedKeys {
 		v := this.actionMap[key]
-		//maru.AddAction("home/index", HomeController{}, "index") 
-		action := fmt.Sprintf("\tmaru.AddAction(\"%s\", %sController{}, \"%s\")\n",
+		//maru.AddAction("home/index", reflect.TypeOf(HomeController{}), "index") 
+		action := fmt.Sprintf("\tmaru.AddAction(\"%s\", reflect.TypeOf(%sController{}), \"%s\")\n",
 			key, v.Controller, v.Action)
 
 		buffer.WriteString(action)
